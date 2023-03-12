@@ -1,82 +1,101 @@
-#Import pygame package
+#Importing Libraries
 import pygame
+import button
 import random as rand
 import math
-  
-#Initializing imported module
-pygame.init()
 
 #Game Window Dimensions
 HEIGHT = 600
-WIDTH = 600
+WIDTH = 800
 
 #Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+RED = (255, 0, 0)
 
-#Circle Characteristics
-CIRCLE_TIME = 1000
-CIRCLE_RADIUS = 15
-  
-#Specifying Window Characteristics
+#Game Window Preliminaries
+pygame.init()
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Fast Clicker CPT Project')
 
-#Running Boolean Variable
-running = True
+def run_game():
+	#Clear screen
+	SCREEN.fill(BLACK)
 
-#Variables for Circle and Time Tracking
-circle_on_screen = False
-points = 0
-circle_center = None
-time_on_screen = None
+	#Running Boolean Variable
+	running = True
 
-#Text Display for Points
-FONT = pygame.font.Font('freesansbold.ttf', 16)
-points_text = FONT.render(str(points), True, WHITE, BLACK)
-TEXT_RECT = points_text.get_rect()
-TEXT_RECT.center = (WIDTH - 20, HEIGHT - 20)
+	#Circle Characteristics
+	CIRCLE_TIME = 1000
+	CIRCLE_RADIUS = 15
 
-#Game will run until "running" boolean is false
-while running:
-    #Displaying the points text on the screen
-    SCREEN.blit(points_text, TEXT_RECT)
+	#Variables for Circle and Time Tracking
+	circle_on_screen = False
+	points = 0
+	circle_center = None
+	time_on_screen = None
 
-    #Create a New Circle if the Screen is Empty
-    if(not circle_on_screen):
-        time_on_screen = pygame.time.get_ticks()
-        circle_center = (rand.randint(CIRCLE_RADIUS, WIDTH - CIRCLE_RADIUS), rand.randint(CIRCLE_RADIUS, HEIGHT - CIRCLE_RADIUS))
-        pygame.draw.circle(SCREEN, WHITE, circle_center, CIRCLE_RADIUS)
-        circle_on_screen = True
-        pygame.display.update()
+	#Text Display for Points
+	FONT = pygame.font.Font('freesansbold.ttf', 16)
+	points_text = FONT.render(str(points), True, WHITE, BLACK)
+	TEXT_RECT = points_text.get_rect()
+	TEXT_RECT.center = (WIDTH - 20, HEIGHT - 20)
 
-    #Remove Circle if it is on Screen for More than CIRCLE_TIME
-    elif(pygame.time.get_ticks() - time_on_screen >= CIRCLE_TIME):
-        pygame.draw.circle(SCREEN, BLACK, circle_center, CIRCLE_RADIUS)
-        circle_on_screen = False
-        pygame.display.update()
+	#Game will run until "running" boolean is false
+	while running:
+		#Displaying the points text on the screen
+		SCREEN.blit(points_text, TEXT_RECT)
 
-    #Event Loop
-    for event in pygame.event.get():
+		#Create a New Circle if the Screen is Empty
+		if(not circle_on_screen):
+			time_on_screen = pygame.time.get_ticks()
+			circle_center = (rand.randint(CIRCLE_RADIUS, WIDTH - CIRCLE_RADIUS), rand.randint(CIRCLE_RADIUS, HEIGHT - CIRCLE_RADIUS))
+			pygame.draw.circle(SCREEN, WHITE, circle_center, CIRCLE_RADIUS)
+			circle_on_screen = True
+			pygame.display.update()
 
-        #Quit game if Window is Closed
-        if event.type == pygame.QUIT:
-            running = False
+		#Remove Circle if it is on Screen for More than CIRCLE_TIME
+		elif(pygame.time.get_ticks() - time_on_screen >= CIRCLE_TIME):
+			pygame.draw.circle(SCREEN, BLACK, circle_center, CIRCLE_RADIUS)
+			circle_on_screen = False
+			pygame.display.update()
 
-        #Detect if Mouse if Pressed
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            #Get the Mouse Position
-            click_pos = pygame.mouse.get_pos()
+		#Event Loop
+		for event in pygame.event.get():
+			#Quit game if Window is Closed
+			if event.type == pygame.QUIT:
+				running = False
 
-            #Calculate if the Mouse Click is Inside the Circle and Within the Time Limit
-            if(math.dist(circle_center, click_pos) <= CIRCLE_RADIUS and pygame.time.get_ticks() - time_on_screen <= CIRCLE_TIME):
-                #Increment Points and Update Points Display
-                points += 1
-                points_text = FONT.render(str(points), True, WHITE, BLACK)
-                SCREEN.blit(points_text, TEXT_RECT)
-                print(points)
+			#Detect if Mouse if Pressed
+			if event.type == pygame.MOUSEBUTTONUP:
+				#Get the Mouse Position
+				click_pos = pygame.mouse.get_pos()
 
-                #Removing the Circle After it is Pressed
-                pygame.draw.circle(SCREEN, BLACK, circle_center, CIRCLE_RADIUS)
-                circle_on_screen = False
-                pygame.display.update()
+				#Calculate if the Mouse Click is Inside the Circle and Within the Time Limit
+				if(math.dist(circle_center, click_pos) <= CIRCLE_RADIUS and pygame.time.get_ticks() - time_on_screen <= CIRCLE_TIME):
+					#Increment Points and Update Points Display
+					points += 1
+					points_text = FONT.render(str(points), True, WHITE, BLACK)
+					SCREEN.blit(points_text, TEXT_RECT)
+
+					#Removing the Circle After it is Pressed
+					pygame.draw.circle(SCREEN, BLACK, circle_center, CIRCLE_RADIUS)
+					circle_on_screen = False
+					pygame.display.update()
+	pygame.quit()
+
+def start_screen():
+	START_BUTTON = button.Button(color = RED, x = 300, y = 200, width = 200, height = 100, text = "Start")
+	START_BUTTON.draw(SCREEN)
+	pygame.display.update()
+
+	start_click = False
+	while not start_click:
+		for event in pygame.event.get():
+			if(event.type == pygame.MOUSEBUTTONUP and START_BUTTON.is_over_mouse(pygame.mouse.get_pos())):
+				start_click = True
+			if(event.type == pygame.QUIT):
+				pygame.quit()
+
+start_screen()
+run_game()
